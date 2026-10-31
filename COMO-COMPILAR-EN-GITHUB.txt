@@ -1,0 +1,10 @@
+COMPILAR SIN GASTAR TU PC (GitHub Actions, gratis)
+
+1. Crea una cuenta en github.com (si no tienes) y pulsa "New repository". Nombre: lilith-plugin. Privado esta bien.
+2. En el repositorio nuevo pulsa "uploading an existing file".
+3. Abre la carpeta lilith-plugin (la que contiene src, build.gradle.kts, etc.) y arrastra TODO su contenido
+   a la pagina, incluida la carpeta oculta .github. Pulsa "Commit changes".
+4. Ve a la pestaña "Actions". Veras "Compilar Lilith" corriendo (tarda unos 5-15 min).
+5. Cuando termine con una palomita verde, entra a esa ejecucion y baja "Lilith-jar" (abajo, en Artifacts).
+   Dentro hay Lilith-1.2.0.jar. Copialo a la carpeta plugins/ del servidor.
+6. Si sale una X roja, abre la ejecucion, entra a "Compilar" y copia el texto del error para pasarselo a Claude.

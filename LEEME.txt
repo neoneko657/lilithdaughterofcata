@@ -1,0 +1,109 @@
+LILITH - plugin para Purpur 1.21.11
+
+COMPILAR (en tu PC, con JDK 21 y Gradle instalados):
+  gradle build
+El .jar queda en build/libs/Lilith-1.2.0.jar. Copialo a la carpeta plugins/ del servidor y reinicia.
+
+COMANDOS (solo homuradied o la consola; cambialo en config.yml -> owner):
+  /lilith spawn | despawn | status
+  /lilith say <mensaje>     -> habla como Lilith
+  /lilith cmd <comando>     -> ejecuta un comando como Lilith (con SUS permisos)
+  /lilith skin <nombre>     -> se cambia la skin (usa skin-command del config, ej. SkinsRestorer: "skin set %s")
+  /lilith duel <jugador>    -> va a pelear con ese jugador
+  /lilith crystal [on|off]  -> activa/desactiva el crystal pvp
+  /lilith follow <jugador> | stay | free
+  /lilith inv               -> GUI para editar su armadura, mano secundaria, inventario y hotbar
+
+OBEDIENCIA: las ORDENES (seguir, atacar, skin, crystal, /tpa, /lilith) solo las acepta de homuradied.
+Con los demas conversa (config: chat-with-everyone) y se defiende si la golpean.
+
+CONVERSACION (nuevo en 1.2):
+- Lee el chat pero SOLO responde cuando alguien escribe "Lilith" (acepta un error de una letra: "liliht"). Apodos: chat-names.
+  Opcional: chat-followup-seconds > 0 deja abierta la charla con esa persona unos segundos sin repetir el nombre.
+- Analiza el mensaje: ordenes (solo homuradied), preguntas de Minecraft, charla, estado de animo, cuentas, dados, chistes...
+- Ordenes (solo homuradied): "sigueme", "quedate quieta", "ve a explorar", "ataca a X", "ponte la skin de X",
+  "modo crystal" / "modo normal", "pelea conmigo", "al spawn", "para / gg" (termina el duelo).
+- Sabe de Minecraft (~100 temas): primeros pasos, minerales y alturas, crafteos, Nether y End, mobs, pociones,
+  encantamientos, redstone, granjas, estructuras, PvP (maza, crystal, nexos, totem). Di "mas" para pedir detalle.
+- Habla de su estado real: "como estas" (vida, hambre, peleas), "donde estas", "que haces", "que hora es", "que tienes en la mano".
+- Memoria por persona: "me gusta X", "recuerda que X", "me llamo X", "que sabes de mi", "olvida todo de mi".
+  Tambien "estadisticas", "donde moriste", "quien te mato", "como vamos" (duelos).
+- Cosas utiles: "cuanto es 12*7", "tira un dado", "dado de 20", "cara o sello", "elige entre A o B", "chiste", "dato curioso".
+- homuradied puede ensenarle: "lilith aprende que la sidra es una bebida de manzana" / "lilith olvida sidra".
+  Lo aprendido se guarda en memoria.json y lo responde a todos.
+- Si le dicen algo que suena a angustia real, responde con cuidado en vez de bromear.
+- Si le preguntan si es un bot, dice la verdad.
+- IA externa OPCIONAL (config: ai.enabled, apagada): para charla libre cuando su cerebro local no sabe. Soporta Anthropic y
+  APIs tipo OpenAI. Ojo: envia el mensaje y el nombre del jugador al proveedor. Solo conversa, nunca ejecuta nada.
+- El texto que dice se limpia: nunca empieza con "/" (en un chat de jugador eso ejecutaria un comando) y corta a 250 caracteres.
+- /lilith reload recarga config.yml sin reiniciar.
+- Si ya tenias un config.yml, borralo (o copia las lineas nuevas) para que aparezcan las opciones de chat e IA; sin ellas usa valores por defecto.
+
+MECANICAS:
+- Navegacion A*: salta bloques, baja hasta 3 de altura, evita lava/fuego/cactus y rodea obstaculos.
+- Pica bloques que le estorben usando la mejor herramienta del hotbar (con el tiempo real de minado).
+  No pica cofres, camas, puertas, vallas, spawners ni nada irrompible, ni cerca de lava.
+- Si no puede romper algo (spawn protegido, otro plugin lo cancela), lo marca como bloqueado
+  por 5 min y busca otra ruta.
+- Si el rival sube el escudo, saca un hacha (si la tiene en el inventario la intercambia con un
+  slot del hotbar: hueco libre primero, luego un slot sin arma) y vuelve a la espada despues.
+- Si hay lag: baja pathfinding-max-nodes en config.yml.
+
+COMBATE (cada habilidad se apaga en config.yml):
+- Mace + wind charge: salta, en lo alto mira abajo y lanza la wind charge a sus pies, y cae golpeando con la mace.
+- Ender pearls: para acortar distancia (rival lejos y a la vista) y para escapar con poca vida.
+- Arco y ballesta cuando el rival esta lejos (tiene que tener flechas). Apunta con caida y adelanto.
+- Cuerpo a cuerpo: criticos (salta y pega cayendo), sprint hit, strafe y W-tap. Con escudo enfrente saca el hacha.
+- Telaranas y lava en los pies del rival (lava solo en overworld; despues retrocede y la recoge con el cubo).
+- Pociones arrojadizas daninas al rival; pociones de ayuda (velocidad, fuerza...) antes de pelear.
+- Water drop: si cae desde alto con un cubo de agua, lo pone abajo y lo recoge al aterrizar.
+
+CRYSTAL PVP (contra jugadores, si tiene el equipo; se apaga con combat-crystal: false):
+- Se acerca con ender pearl (si esta lejos) o corriendo.
+- Dtap: golpea con la espada kb1 (si no tiene, kb2; si no, cualquiera) o sprint hit si no tiene espada,
+  hasta levantar al rival.
+- Apenas lo levanta pone obsidiana a ~1.5 bloques a un lado del rival (nunca debajo: ahi no cabe el
+  cristal; si ya hay obsidiana a esa distancia la reutiliza, si no pone una nueva), el cristal encima y lo rompe; repite mientras siga
+  en el aire (necesita end crystals + obsidiana). Cada vez que el rival vuelve a tocar el suelo, corta los
+  cristales y repite el dtap: golpear hasta levantarlo y de nuevo obsidiana + cristal.
+- Si el rival gasta un totem, se salta el golpe y mete cristales ya.
+- Nexos: pone un nexo (respawn anchor) en el suelo, le mete 1 glowstone para cargarlo y lo explota con un
+  totem en la mano. No funciona en el Nether (alli los nexos no explotan).
+- Mientras hace crystal pvp NO huye aunque pierda el totem o tenga poca vida: pelea hasta morir
+  (crystal-fight-to-death: false para que vuelva a huir). Tampoco usa elytra ni se cura a medias.
+- Las explosiones tambien le pegan a ella (por eso el totem en la mano secundaria).
+
+SUPERVIVENCIA:
+- Totem siempre en la mano secundaria; si se gasta uno se pone otro al instante.
+- Si presiente que muere (poca vida o mucho dano seguido) y tiene 2 totems, se los pone en las 2 manos
+  (no ataca, se aleja) hasta que se recupera o se acaban.
+- Con poca vida: pocion de curacion o manzana dorada (encantada si esta muy grave). Con elytra + cohetes
+  y poca vida: se pone la elytra, despega y huye volando; cuando aterriza se cura y se vuelve a poner el peto.
+- Come cuando tiene hambre.
+
+PUERTAS: abre puertas y portones de madera como un jugador (dispara el evento de interaccion, asi que
+respeta spawn protegido y plugins de regiones). Si no puede, la marca como bloqueada y busca otra ruta
+u otra cosa que hacer. Las puertas de hierro las trata como pared.
+
+TPA: si alguien escribe /tpa Lilith (o call, tpask, tpahere... ver tpa-commands), ejecuta /tpaccept y pelea
+con esa persona (duelo) hasta que uno muera o le digan "para" / "gg". En el chat: "Lilith pvp" tambien
+inicia un duelo.
+
+SPAWN: si no hay jugadores a 64 bloques por 30 s y esta a mas de 48 bloques del spawn, usa /spawn.
+Estando sola cerca del spawn, deambula por sus alrededores.
+
+MEMORIA E INTELIGENCIA (nuevo):
+- Recuerda cuantas veces murio, por que (jugador o tipo de criatura), donde, cuantos totems gasto
+  y cuantas criaturas mato. Preguntale en el chat: "estadisticas", "donde moriste", "quien te mato".
+- Aprende miedo: si algo la mato 2+ veces, no lo ataca por iniciativa con poca vida y huye antes de el.
+- Huye antes (hasta 14 de vida) si el rival es de tipo que la mato, esta mucho mejor equipado
+  (armadura + arma) o hay 4+ monstruos cerca.
+- Guarda su record de duelos con cada jugador ("Vamos 2 a 1") y lo dice al terminar y en "que sabes de mi".
+- Conoce mas criaturas (fantasma, blaze, piglin, warden).
+
+Memoria: plugins/Lilith/memoria.json. Opciones: plugins/Lilith/config.yml.
+
+AVISO: no se pudo compilar ni probar dentro de Minecraft (ni la 1.0, ni la 1.1, ni la 1.2). El motor de conversacion
+(LilithText, LilithKnowledge, LilithTalk) si se compilo y se probo aparte con ~60 frases de ejemplo; la parte que toca
+Bukkit/NMS (LilithBrain, LilithPlugin) no se pudo compilar. Si el build falla, puede ser la version
+de paperweight-userdev (build.gradle.kts) o algun nombre de NMS de 1.21.11.

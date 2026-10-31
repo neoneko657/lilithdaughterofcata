@@ -1,0 +1,14 @@
+name: Lilith
+version: 1.2.0
+main: cl.lilith.LilithPlugin
+api-version: '1.21'
+description: Lilith, una jugadora con IA, conversa y sabe de Minecraft que vive en el servidor
+commands:
+  lilith:
+    description: Controla a Lilith
+    usage: /lilith <spawn|despawn|say|cmd|skin|duel|crystal|follow|stay|free|inv|status|reload>
+    permission: lilith.admin
+permissions:
+  lilith.admin:
+    description: Permite controlar a Lilith
+    default: op

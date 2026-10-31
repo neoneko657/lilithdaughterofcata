@@ -1,0 +1,67 @@
+# Lilith: configuracion
+
+# Obediencia: Lilith SOLO le hace caso a esta persona (chat, /tpa y /lilith). A los demas los ignora.
+owner: homuradied
+owner-only-command: true     # /lilith solo lo usa el owner o la consola
+
+# ---------------------------------------------------------------- Chat
+# Lilith lee el chat pero SOLO responde cuando alguien escribe su nombre.
+chat-names: [lilith]            # nombres con los que se le habla (ej: [lilith, lili])
+chat-with-everyone: true        # conversar con todos. Las ORDENES siguen siendo solo del owner. false = solo el owner
+chat-cooldown-ms: 3000          # espera entre mensajes de la misma persona (anti-spam; no aplica al owner)
+chat-followup-seconds: 0        # >0: tras responderle a alguien, sigue la charla con esa persona X segundos sin que repita el nombre
+chat-listen: true               # guarda en RAM las ultimas 8 lineas del chat como contexto (nunca responde sola ni lo guarda en disco)
+chat-reply-delay-ticks: 15      # pausa antes de responder, para que parezca que escribe
+
+# IA externa OPCIONAL para conversar mas libremente (apagada por defecto). Sin ella Lilith igual conversa y sabe de Minecraft.
+# Solo se usa cuando su cerebro local no sabe responder. Envia al proveedor el mensaje, el nombre del jugador y datos basicos
+# de Lilith; el chat reciente solo si include-recent-chat es true. No guardes tu api-key en un zip que compartas.
+ai:
+  enabled: false
+  provider: anthropic          # anthropic | openai (openai tambien sirve para Groq, OpenRouter, Ollama...)
+  url: ""                      # vacio = url por defecto del proveedor
+  api-key: ""
+  model: "claude-haiku-5-5"    # con openai pon el modelo que uses, ej: gpt-4o-mini
+  max-tokens: 150
+  timeout-seconds: 12
+  max-calls-per-hour: 120
+  include-recent-chat: false
+
+# Skin: comando de tu plugin de skins (ej. SkinsRestorer). %s = nombre de la skin
+skin-command: "skin set %s"
+
+spawn-on-start: true         # aparece sola al iniciar el servidor
+defend-against-players: true # se defiende si un jugador la golpea
+greet-on-join: true          # saluda a los jugadores que entran
+
+# Navegacion
+pathfinding-max-nodes: 1500  # mas nodos = rutas mas largas pero mas CPU (baja a 800 si hay lag)
+pathfinding-dig: true        # puede picar bloques que le estorben (respeta spawn y protecciones)
+
+# Combate (pon false para apagar una habilidad)
+combat-pearls: true      # ender pearls para acortar distancia y para escapar
+combat-mace: true        # mace + wind charge: mira abajo, salta, lanza la wind charge y golpea cayendo
+combat-ranged: true      # arco y ballesta de lejos
+combat-cobweb: true      # pone telaranas en los pies del rival
+combat-lava: true        # pone lava en los pies del rival (solo overworld) y luego la recoge
+combat-totems: true      # totem siempre en la mano secundaria; 2 manos si presiente que muere
+combat-elytra: true      # huye planeando con elytra y cohetes cuando le queda poca vida
+combat-potions: true     # bebe pociones de ayuda (velocidad, fuerza...) y tira las daninas
+combat-waterdrop: true   # cubo de agua al caer desde alto
+
+# Crystal pvp (solo contra jugadores, y solo si tiene el equipo en el inventario)
+combat-crystal: true          # dtap: golpe kb1/kb2 o sprint hit, y obsidiana + cristales al instante
+crystal-anchors: true         # tambien nexos: pone el nexo, lo carga con glowstone y lo explota con totem (no en el Nether)
+crystal-fight-to-death: true  # en crystal pvp NO huye, no se cura a medias ni usa elytra: pelea hasta morir
+
+# TPA y duelos
+accept-tpa: true                 # acepta los /tpa que le mandan
+pvp-after-tpa: true              # y pelea con quien se los mando (solo si esta en survival)
+tpa-accept-command: tpaccept     # comando para aceptar (EssentialsX)
+tpa-commands: [tpa, call, tpask, tpahere, etpa, etpahere]
+
+# Spawn
+return-to-spawn: true                # si esta sola, vuelve a /spawn
+return-to-spawn-after-seconds: 30    # segundos sin jugadores cerca
+return-to-spawn-min-distance: 48     # solo usa /spawn si esta mas lejos que esto
+spawn-command: spawn
